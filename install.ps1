@@ -95,7 +95,7 @@ function Write-Utf8 { param([string]$Path, [string]$Text) [IO.File]::WriteAllTex
 function Backup-File {
     param([string]$Path)
     if (Test-Path -LiteralPath $Path -PathType Leaf) {
-        $bak = $Path + '.terminal11-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.bak'
+        $bak = $Path + '.terminal11-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N').Substring(0, 4) + '.bak'
         Copy-Item -LiteralPath $Path -Destination $bak
         Say ('    backup: ' + $bak) DarkGray
     }
@@ -157,9 +157,10 @@ function Read-Menu {
                 if ($Multi) { $box = $(if ($sel.Contains($i)) { '[x] ' } else { '[ ] ' }) }
                 $head = $box + $o.Label
                 $desc = ''
-                if ($o.Desc) {
+                $dtext = $(if ($o.ContainsKey('Desc')) { [string]$o.Desc } else { '' })
+                if ($dtext) {
                     $room = $w - 4 - $head.Length - 2
-                    if ($room -gt 8) { $desc = '  ' + $(if ($o.Desc.Length -gt $room) { $o.Desc.Substring(0, $room - 1) + '~' } else { $o.Desc }) }
+                    if ($room -gt 8) { $desc = '  ' + $(if ($dtext.Length -gt $room) { $dtext.Substring(0, $room - 1) + '~' } else { $dtext }) }
                 }
                 if ($i -eq $cur) {
                     $line = "  $E[36m" + [char]0x276F + "$E[0m $E[1m$head$E[0m$E[90m$desc$E[0m"
